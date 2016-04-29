@@ -1,0 +1,23 @@
+﻿@using WebApplication1.Controllers
+@{
+    ViewBag.Title = "Live Follows";
+}
+
+<h2>Live Follows</h2>
+
+<div class="container">
+@foreach (WebApplication1.Controllers.Stream stream in ViewBag.streamList)
+{
+    <div class="col-md-4 panel panel-default" style="margin-left:10px;padding:10px;width:320px;">
+        <a href="@stream.channel.url" class="thumbnail">
+            <img src="@stream.preview.medium" />
+        </a>
+        <div class="panel-body">
+            <p><strong>@stream.channel.display_name</strong>
+                <span class="pull-right"><b><span class="glyphicon glyphicon-user"></span> @stream.viewers</b></span>
+            </p>
+            @stream.channel.status
+        </div>
+    </div>
+}
+</div>
