@@ -334,19 +334,33 @@ namespace WebApplication1.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    var picture = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("pictureUrl")).Select(c => c.Value).FirstOrDefault();
-                    if (picture != null)
+                    var provider = loginInfo.Login.LoginProvider;
+                    if (loginInfo.Login.LoginProvider == "Google")
                     {
-                        var currentUser = SignInManager.UserManager.Users.First();
-                        currentUser.pictureUrl = picture;
-                        await SignInManager.UserManager.UpdateAsync(currentUser);
+                        var picture = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("googlePicture")).Select(c => c.Value).FirstOrDefault();
+                        if (picture != null)
+                        {
+                            var currentUser = SignInManager.UserManager.Users.First();
+                            currentUser.pictureUrl = picture;
+                            await SignInManager.UserManager.UpdateAsync(currentUser);
+                        }
+                        var googleAccess = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("googleAccess")).Select(c => c.Value).FirstOrDefault();
+                        if (googleAccess != null)
+                        {
+                            HttpCookie cookie = new HttpCookie("googleAccess");
+                            cookie.Value = googleAccess;
+                            Response.Cookies.Add(cookie);
+                        }
                     }
-                    var twitchAccess = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("twitchAccess")).Select(c => c.Value).FirstOrDefault();
-                    if (twitchAccess != null)
+                    else if (loginInfo.Login.LoginProvider == "Twitch")
                     {
-                        HttpCookie cookie = new HttpCookie("twitchAccess");
-                        cookie.Value = twitchAccess;
-                        Response.Cookies.Add(cookie);
+                        var twitchAccess = loginInfo.ExternalIdentity.Claims.Where(c => c.Type.Equals("twitchAccess")).Select(c => c.Value).FirstOrDefault();
+                        if (twitchAccess != null)
+                        {
+                            HttpCookie cookie = new HttpCookie("twitchAccess");
+                            cookie.Value = twitchAccess;
+                            Response.Cookies.Add(cookie);
+                        }
                     }
 
                     return RedirectToLocal(returnUrl);

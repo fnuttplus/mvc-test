@@ -60,8 +60,8 @@ namespace WebApplication1
             //app.UseFacebookAuthentication(
             //   appId: "",
             //   appSecret: "");
-            
-            app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
+
+            var googleOptions = new GoogleOAuth2AuthenticationOptions()
             {
                 ClientId = System.Configuration.ConfigurationManager.AppSettings["googleId"],
                 ClientSecret = System.Configuration.ConfigurationManager.AppSettings["googleSecret"],
@@ -70,11 +70,22 @@ namespace WebApplication1
                     OnAuthenticated = (context) =>
                     {
                         var pictureUrl = context.User["image"].Value<string>("url");
-                        context.Identity.AddClaim(new Claim("pictureUrl", pictureUrl));
+                        context.Identity.AddClaim(new Claim("googlePicture", pictureUrl));
+                        context.Identity.AddClaim(new Claim("googleAccess", context.AccessToken));
                         return Task.FromResult(0);
                     }
                 }
-            });
+            };
+
+            googleOptions.Scope.Add("openid");
+            googleOptions.Scope.Add("profile");
+            googleOptions.Scope.Add("email");
+
+            googleOptions.Scope.Add("https://www.googleapis.com/auth/youtube.readonly");
+            googleOptions.Scope.Add("https://www.googleapis.com/auth/youtube");
+            googleOptions.Scope.Add("https://www.googleapis.com/auth/youtube.force-ssl");
+
+            app.UseGoogleAuthentication(googleOptions);
 
             var options = new TwitchAuthenticationOptions
             {
